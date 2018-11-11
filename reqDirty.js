@@ -1,6 +1,5 @@
-var ALL = `./
+var ALL = `
 `
-
 // ######
 
 ALL = ALL.split('\n')
@@ -12,7 +11,13 @@ var selfName = './req.js'
 
 module.exports=(P, EntryP, forceUp)=>{
     var fund = ALL.find(p => p.match(P))
-    var EntryP = EntryP || './'
+    var EntryP = EntryP || './' || global.process.env.PWD
+
+    ALLMODULES = {}
+    ALL.forEach((p)=>{
+      ALLMODULES[ p.split('/').reverse()[0].replace('.js','') ] = p
+    })
+
     if (forceUp) {
       genLinkList(EntryP)
     }
