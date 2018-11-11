@@ -1,6 +1,19 @@
 mod={ test : ()=>{
   console.log(req(process.argv[1]))
 },status:'Entwurf', moduleDescription:`Modul req:
+
+
+
+Abbruch:
+Wird wohl nix, weil es synchron alles lesen muss um es auch direkt zurrück zu geben 
+
+reqDirty funktioniert, updatet sich selbst bei jedem aufruf ...
+
+Besser ein Healrequire.js entwickeln das requires in files sucht und testet ob diese plausibel sind
+und wenn nciht versucht tzu ersetzen
+
+
+
 req soll:
 1. eine link-liste generieren und separat speichern
 	- formatRawPath:  handle übergabeparmeter
@@ -26,14 +39,69 @@ erwarte inputPath als möglichst validen path für umgebung
 X (todo) als modus o.ä.
 */
 function req(inputPath, X){
-  mod.args = false; var res = mod.args || '( ͡° ͜ʖ ͡°) - ¯\\_(ツ)/¯'
-  // console.log('\ninputPath:',inputPath,'X:',X)
-  mod.inputPath = inputPath
-  genLinkList(inputPath)
-  return res
+  console.log('\ninputPath:',inputPath,'X:',X)
+  var original = inputPath
+  inputPath = firstLevelNorm(inputPath)
+
+	try {
+	  var boooo = require(inputPath)
+	}
+	catch(error) {
+	  console.error(error);
+	  console.log('Pfad: '+inputPath,'nicht direkt requireble');
+	  fs.watch('./', (eventType, filename) => {
+		  console.log(`event type is: ${eventType}`);
+		  if (filename) {
+		  	fs.readFile('./'+filename,(paths)=>{
+		  		var fund = paths.split('\n')
+		  		.filter((pat)=>{
+		  			return pat.match(original)
+		  		}).forEach((fund)=>{
+		  			console.log('Finalfund: ', fund)
+		  		})
+		  	})
+		    console.log(`filename provided: ${filename}`);
+		  } else {
+		    console.log('filename not provided');
+		  }
+		});
+	  console.log('\n\n#',genLinkList(inputPath))
+	}
+}
+
+function firstLevelNorm(path){
+	if (typeof path === 'string' && path.length > 1) {
+		if (path.length > 2) {
+			if (!!path.match(/^\./)) {
+				if (!!path.match(/^\.\./)) {
+					if ( !!path.match(/^\.\.\//) ) {
+						return path
+					}else{
+						return './'+path
+					}
+				}else if(!!path.match(/^\.\//)){
+					return path
+				}else if(!!path.match(/^\.\w/)){
+					return './'+path
+				}else{
+					return './'+path
+				}
+			}else{
+				return './'+path
+			}
+		} else {
+			console.log('Sehr kleiner path: ', path)
+			return './'+path
+		}
+	} else {
+		console.error('!unbrauchbarer Pfad: ', path)
+	}
 }
 
 function genLinkList(path){
+ glob = require('glob')
+ glob('**/*.js', {}, function (er, files) {console.log(files)})
+// require('child_process').execSync('rsync -avAXz --info=progress2 "/src" "/dest"', {stdio:[0,1,2]});
  console.log('\n\npath:',path)
  const { spawn } = require('child_process');
  let blankList = []
@@ -43,6 +111,7 @@ function genLinkList(path){
   	// console.log(data.toString())
   });
   find.stdout.on('finish', (data) => {
+    save('blank', blankList)
   	blankList = blankList.split('\n')
   	.filter((p)=>{
   		return p.match(/.js$/) 
@@ -51,8 +120,7 @@ function genLinkList(path){
   	})
   	console.log(formatPathArr(blankList))
   	console.log('cmd war:'+'find '+formatRawPath(path))
-    // save('blank', blankList)
-  });
+  }).then((afterfinish)=>{ console.log('afterfinish',afterfinish) });
   find.stderr.on('data', (data) => {
     console.log(`ps stderr: ${data}`);
   });
@@ -104,10 +172,29 @@ function genPathFromSegs(segs, len){
 }
 
 function save(type, blankList){
+
+	// fs.readFile(filename, function(error, data) {
+	// 	data=data+''
+	// 	fs.writeFile('protokoll'+filename+'.js', def, 'utf8', 
+	// 		function(cb){console.log('written to: '+'protokoll'+filename+'.js\n')})
+	// })
+
+	//rm -r blank*
 	if (type == 'blank') {
-		fs.write('./'+Date.now(), blankList)
+		// console.log(blanklist)
+		fs.writeFile('blank'+Date.now()+'.txt', blankList, 'utf8', 
+			function(cb){console.log('written blanklist \n')})
 	}
 }
+
+//wannabe...
+// getIndexedBlanklist(){
+// 	var filename = list.filter = blank.sort d.[0]
+// 	return fs.readFile(filename, function(error, data) {
+// 		data=data+''
+// 	})
+// }
+
 
 
 module.exports = req
