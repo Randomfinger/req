@@ -1,0 +1,7 @@
+require('a')
+require('a2')
+require('a')
+require('AAAAA')
+require('AAAAAX')
+require('b')
+require('CC')
