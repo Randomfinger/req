@@ -17,7 +17,6 @@ mod={ test : ()=>{
 Get 2 Paths with .js files one is absolute Path to go and the other is the node where you start at 
 Generate a relative Path from node to absolut
 
-Known fail: Übergabe von ['./','../'] Oder ['../','./']
 `}; var pa = process.argv; transAbsolutToRelative.mod = mod;  if( pa.find( a => a.match(/test[al]*/) ) ) {
   console.log('\nmoduleDescription (Status: '+mod.status+'):\n',mod.moduleDescription+'\nTestergebnis:'); 
   mod.test(); pa.find(a => a.match(/all/) ) ? pa.push('test') : pa.splice(pa.indexOf('test'), 1) }; 
@@ -27,7 +26,11 @@ ich bin der absolute node und bekomme den absoluten path von einer Datei
 */
 function transAbsolutToRelative(absolut, node){
 	// console.log('\nVon: ',node,'\nNach: ',absolut,)
-	if (absolut.match(/^..?\//) || node.match(/^..?\//)) {console.log('!fail in transAbsolutToRelative, expect absolute paths...'); return 'fail '+absolut+node;}
+	var nROR=function notRootOrRelative(p){return (p != '/' && p.replace(/[.\/]/g,'').length == 0)}
+	if (nROR(absolut) || nROR(node)) {
+		console.log('!fail in transAbsolutToRelative, expect absolute paths...'); 
+		return 'fail: '+absolut+'  -  '+node;
+	}
 	if (absolut.trim() == node.trim()){return './'}
 	var abs = toSegments(absolut), 
 		nod = toSegments(node),

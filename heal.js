@@ -65,9 +65,10 @@ function genLinkList(path){
   });
 
 
-  find.stdout.on('finish', (data) => {
+  find.stdout.on('close', (data) => {
     blankList = blankList.split('\n')
     .filter((p)=>{
+    	console.log(p)
       return p.match(/.js$/) 
       && !p.match(/node_modules/) 
       && !p.match(/.git/)
@@ -80,11 +81,7 @@ function genLinkList(path){
   find.stderr.on('data', (data) => {
     console.log(`find stderr: ${data}`);
   });
-  find.on('close', (code) => {
-    if (code !== 0) {
-      console.log(`find process exited with code ${code}`);
-    }
-  });
+
 }
 
 /*
