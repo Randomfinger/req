@@ -1,20 +1,23 @@
 mod={ test : ()=>{
 	[
-		['/','/'],
-		['/home/usr','/home/usr'],
-		['/home/usr','/home'],
-		['/home','/home/usr'],
-		['/home/usr/js/codeBsp/evalReduce.js','/home/someOtherUsr/js/solé/PhyChemMath/modelica/zuErsetzenOderReaktivierenElektrolyse.js'],
-		['/home/usr/js/solé/PhyChemMath/modelica/zuErsetzenOderReaktivierenElektrolyse.js','/home/usr/js/codeBsp/evalReduce.js'],
-	].map((x)=>{
+		['/','/'], ['/F1','/'], ['/F1.js','/'], ['/F1.js','/F2'], ['/F1.js','/F2.js'], ['/F1','/F2.js'],
+		['/','/F2.js'],
+		['./','../'], //fail Von ../ - Nach ./ -> 		/.././ 
+		['../','./'], //fail Von ./ - Nach ../ -> 		/../../ 
+		['/home','/home/usr'],	['/home/usr','/home'], ['/home/usr/a/b/c','/'], ['/','/home/usr/a/b/c'],
+		['/home/usr/a/b/c','/home/usr/a/b/c'], ['/home/usr/F1','/home/usr/F2.txt'],	['/home/usr/F1.js','/home/usr/F2.js'],
+		['/home/usr/F1.js','/home/F2.js'], ['/home/F1.js','/home/usr/F2.js']
+	].map((x,i)=>{
 		var res = transAbsolutToRelative(x[0], x[1])
-		console.log(res,'\n')
+		console.log(i+' Von '+x[1]+' - Nach '+x[0]+' -> \t\t'+res,'\n')
 		return res
 	})
 
 },status:'Entwurf', moduleDescription:`Modul transAbsolutToRelative:
 Get 2 Paths with .js files one is absolute Path to go and the other is the node where you start at 
 Generate a relative Path from node to absolut
+
+Known fail: Übergabe von ['./','../'] Oder ['../','./']
 `}; var pa = process.argv; transAbsolutToRelative.mod = mod;  if( pa.find( a => a.match(/test[al]*/) ) ) {
   console.log('\nmoduleDescription (Status: '+mod.status+'):\n',mod.moduleDescription+'\nTestergebnis:'); 
   mod.test(); pa.find(a => a.match(/all/) ) ? pa.push('test') : pa.splice(pa.indexOf('test'), 1) }; 
@@ -24,6 +27,8 @@ ich bin der absolute node und bekomme den absoluten path von einer Datei
 */
 function transAbsolutToRelative(absolut, node){
 	// console.log('\nVon: ',node,'\nNach: ',absolut,)
+	if (absolut.match(/^..?\//) || node.match(/^..?\//)) {console.log('!fail in transAbsolutToRelative, expect absolute paths...'); return 'fail '+absolut+node;}
+	if (absolut.trim() == node.trim()){return './'}
 	var abs = toSegments(absolut), 
 		nod = toSegments(node),
 		res= '', up = [], branch = [], stillClean = true
