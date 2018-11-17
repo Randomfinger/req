@@ -4,7 +4,7 @@ make require rich
 tl;dr automatic search for required files 
 
 Imagine a project with many NodeJS modules written by different people.
-The modules are in various directorys containing various reqires between them.
+The modules are in various directorys containing various requires between them.
 
 - Now you in a refactor or review process want to rearrange some modules.
 If you move a module to an other dir you need to update all the modules 
@@ -23,7 +23,7 @@ starts do get annoying.
     Change "IKnowWhatIMDoing = true" and it will write the update to all the files!
     
   To test heal.js go to /req and type:
-   > node heal.js test 
-   ---> It will execute heal.js on the ./TestFiles dir with "IKnowWhatIMDoing = false"
+  node heal.js test 
+  ---> It will execute heal.js on the ./TestFiles dir with "IKnowWhatIMDoing = false"
     The result should be a list of objects in the console like:
       { file: './TestFiles/a/A/aa.js', oldPath: 'CC', newPath: './../../c/C/CC.js' }, ...
